@@ -37,14 +37,18 @@ Authentication/Authorization is handled by OAuth from Tokopedia Accounts module.
 > As an example, generate a basic authentication code by using following command line (on Linux):
 
 ```shell
-$ echo "_your_client_id_here:_your_client_secret_here"  | base64
-Y2xpZW50X2lkOmNsaWVudF9zZWNyZXQK
+1. Go to https://www.base64encode.org/
+2. Generate base64 token for: _your_client_id_here:_your_client_secret_here" 
+3. For example, it generates: Y2xpZW50X2lkOmNsaWVudF9zZWNyZXQK
 ```
 
 > Use the received base64 encoded basic-auth token to get access_token:
 
+Staging Url: https://accounts-staging.tokopedia.com/token
+Production Url: https://accounts.tokopedia.com/token 
+
 ```shell
-$ curl -X POST 'https://accounts-staging.tokopedia.com/token' -H \
+$ curl -X POST 'https://accounts.tokopedia.com/token' -H \
 	"Authorization: Basic Y2xpZW50X2lkOmNsaWVudF9zZWNyZXQK" -d \
 		'grant_type=client_credentials'
 {"access_token":"LSPr7x7sRGaewzwZE6IcuA","expires_in":2592000,\
@@ -53,10 +57,13 @@ $ curl -X POST 'https://accounts-staging.tokopedia.com/token' -H \
 
 > To authorize, use this code:
 
+Staging Url: https://fs-staging.tokopedia.net
+Product Url: https://fs.tokopedia.net
+
 ```shell
 # With shell, you can just pass the correct header with each request
 curl -XGET -H "Authorization: Bearer LSPr7x7sRGaewzwZE6IcuA" \
-	http://fs-staging.tokopedia.net/v1/sample/endpoint
+	https://fs.tokopedia.net/v1/sample/endpoint
 ```
 
 <aside class="notice">
@@ -103,11 +110,18 @@ This endpoint retrieves all orders for your shop between given timestamps.
 
 Parameter | Default | Description
 --------- | ------- | -----------
-shop_id | - | shop id
+fs_id | - | FS id
 from_date | - | UNIX timestamp of date (hour,min,sec) from which the order details are requested
 to_date | - | UNIX timestamp of date (hour,min,sec) to which the order details are requested
 
 Timestamps follow regular UNIX timestamp format.
+
+### Pagination 
+
+For pagination, use `page=` and `per_page=` query parameters.
+
+Staging Url: https://fs-staging.tokopedia.net
+Product Url: https://fs.tokopedia.net
 
 <aside class="success">
 Remember — this is authenticated request!
@@ -115,57 +129,89 @@ Remember — this is authenticated request!
 
 ```shell
 curl -H "Authorization: Bearer LSPr7x7sRGaewzwZE6IcuA" \
-	http://fs-staging.tokopedia.net/v1/order/list?shop_id=\
-		_your_shop_id&from_date=1481760000&to_date=1481814000
+	https://fs.tokopedia.net/v1/order/list?fs_id=\
+		_your_shop_id&from_date=1481760000&to_date=1481814000&page=1&per_page=1
 ```
 
 > The above command returns JSON structured like this:
 
 ```json
 {
-    "config": null,
+    "jsonapi": {
+        "version": "1.0"
+    },
+    "meta": null,
     "data": [{
-        "fs_id": "",
-        "order_id": 12443547,
-        "invoice_ref_num": "INV/20161215/XVI/XII/12443550",
-        "products": [{
-            "id": 14265919,
-            "name": "Puding",
-            "quantity": 3,
-            "notes": "",
-            "price": 100
-        }],
-        "device_type": "",
-        "customer": {
-            "id": 5480358,
-            "name": "Emma Watson",
-            "phone": "081939164777"
-        },
-        "shop_id": 479094,
-        "payment_id": 10540008,
-        "recipient": {
-            "name": "Tifa",
-            "address": "Jl. R. A. Cipocok Jaya, 42118, Banten",
-            "phone": "081294647164"
-        },
-        "logistics": {
-            "shipping_id": 1,
-            "shipping_agency": "JNE",
-            "service_type": "regular"
-        },
-        "amt": {
-            "ttl_product_price": 300,
-            "shipping_rate": 10,
-            "insurance_price": 0,
-            "ttl_amount": 310
-        },
-        "order_status": 400,
-        "create_time": 1481774373,
-        "custom_fields": null
+    "fs_id": 12002,
+    "order_id": 12463948,
+    "accept_partial": false,
+    "invoice_ref_num": "INV/20170505/XVII/V/12463898",
+    "products": [{
+        "id": 14286522,
+        "name": "Product A",
+        "quantity": 1,
+        "notes": "",
+        "weight": 0.01,
+        "total_weight": 0.01,
+        "price": 10000,
+        "total_price": 10000,
+        "currency": "Rp"
     }],
-    "server_process_time": 0,
-    "status": "OK",
-    "error_message": []
+    "buyer": {
+        "id": 5484718,
+        "name": "Franky Buyer",
+        "phone": "08128533762",
+        "email": "franky.wibisono+buyer@tokopedia.com"
+    },
+    "recipient": {
+        "name": "Franky",
+        "address": {
+            "address_full": "Wisma 7 Tower 2 Lantai 6",
+            "district": "Palmerah",
+            "city": "Jakarta Barat",
+            "province": "DKI Jakarta",
+            "country": "Indonesia",
+            "postal_code": "11410"
+        },
+        "phone": "08128533762"
+    },
+    "shop_id": 479569,
+    "shop_name": "Orami Official Store",
+    "payment_id": 11521618,
+    "logistics": {
+        "shipping_id": 1,
+        "shipping_agency": "JNE",
+        "service_type": "Reguler"
+    },
+    "amt": {
+        "ttl_product_price": 10000,
+        "shipping_cost": 9000,
+        "insurance_cost": 0,
+        "ttl_amount": 19000,
+        "voucher_amount": 0,
+        "toppoints_amount": 0
+    },
+    "dropshipper_info": {
+        "name": "",
+        "phone": ""
+    },
+    "voucher_info": {
+        "voucher_type": 0,
+        "voucher_code": ""
+    },
+    "device_type": "default_v3",
+    "order_status": 220,
+    "create_time": "2017-05-05 18:06:51",
+    "custom_fields": {}
+    }],
+    "links": {
+        "self": "",
+        "related": "",
+        "first": "",
+        "last": "",
+        "prev": "",
+        "next": ""
+    }
 }
 ```
 
@@ -192,8 +238,18 @@ order_notification_url | callback endpoint on which to receive new payment verif
 order_cancellation_url | callback endpoint on which to receive order cancellation notifications
 order_status_url | callback endpoint on which to receive order status notification
 order_actions_url | callback endpoint that provides all actions' updated URLs
+webhook_secret | secret for generating HMAC while making callbacks
 
 After registration is successful, you will receive notifications for new order, order cancellations and order status updates from tokopedia on respective endpoints you registered. You will also be able to accept/reject order or update order status for each order notification received.
+
+Staging Url: https://fs-staging.tokopedia.net
+Product Url: https://fs.tokopedia.net
+
+<aside class="notice">
+Security:
+
+Registered callbacks are protected from MOTM attacks using HMAC authorization. All HTTP requests to callbacks will contain the authorization header "Authorization: TKPD Tokopedia:" followed by hmac code. This should be verified on the fulfillment service (merchant) end.
+</aside>
 
 <aside class="success">
 Remember — this is authenticated request!
@@ -201,12 +257,13 @@ Remember — this is authenticated request!
 
 ```shell
 curl -H "Authorization: Bearer LSPr7x7sRGaewzwZE6IcuA" \
-    http://fs-staging.tokopedia.net/v1/fs/9999999/register -d\'{
+    https://fs.tokopedia.net/v1/fs/9999999/register -d\'{
     	"fs_id":1001,
     	"order_actions_url":"http://yourstore.com/v1/order/actions",
     	"order_notification_url":"http://yourstore.com/v1/order/notify",
     	"order_cancellation_url":"http://yourstore.com/v1/order/cancel",
-    	"order_status_url":"http://yourstore.com/v1/order/status"
+    	"order_status_url":"http://yourstore.com/v1/order/status",
+		"webhook_secret": "abracadabr@"
 }'
 ```
 
@@ -225,17 +282,19 @@ Parameter | Description
 order_id | order id
 fs_id | fulfillment service id
 
-### Form Data Parametes (JSON)
+### (Optional) Form Data Parametes (JSON)
+
+Staging Url: https://fs-staging.tokopedia.net
+Product Url: https://fs.tokopedia.net
+
+<aside class="notice">
+POST data is needed only when merchant accepts partial order.
+</aside>
 
 Parameter | Description
 --------- | -----------
-fs_id | fulfillment service id
-shop_id | shop id
-order_id | order id
-products | products. each product contains `product_id`, `quantity_deliver` and `quantity_reject`
-order_status | order status - either 400 for accepting complete order or 401 for accepting partial order.
-reason | reason associated with e.g. accepting partial order
-update_time | time of acceptance of order in `YYYY-MM-DD HH:mm:SS` fmt
+products | products fulfilled. each product contains `product_id`, `quantity_deliver` and `quantity_reject`
+reason | reason (especially for order rejection e.g. Out of stock, Variant unavailable, Wrong price or weight, Shop closed etc.
 
 <aside class="success">
 Remember — this is authenticated request!
@@ -243,24 +302,19 @@ Remember — this is authenticated request!
 
 ```shell
 curl -H "Authorization: Bearer LSPr7x7sRGaewzwZE6IcuA" \
-    http://fs-staging.tokopedia.net//v1/order/12345/fs/999999/ack -d\'{
-		"fs_id": 999999, 
-		"order_id": 12345, 
+    https://fs.tokopedia.net//v1/order/12345/fs/999999/ack -d\'{
 		"products": [
 			{
 				"product_id": 12,
 				"quantity_deliver": 1, 
-				"quantity_reject": 0
+				"quantity_reject": 1
 			}, 
 			{
 				"product_id": 14, 
 				"quantity_deliver": 2, 
 				"quantity_reject" 0
 			}
-		], 
-		"order_status": 400, 
-		"reason": "", 
-		"update_time": "2017-01-01 18:00:10"
+		]
 }'
 ```
 
@@ -283,25 +337,36 @@ fs_id | fulfillment service id
 
 Parameter | Description
 --------- | -----------
-fs_id | fulfillment service id
-shop_id | shop id
-order_id | order id
-products | products. optional. 
-order_status | order status - status should be `10`
-reason | reason associated with e.g. accepting partial order
-update_time | time of acceptance of order in `YYYY-MM-DD HH:mm:SS` fmt
+reason_code | must be a integer as mentioned in table below.
+reason | reason (especially for order rejection e.g. Out of stock, Variant unavailable, Wrong price or weight, Shop closed etc.
+shop_close_end_date | if reason_code is 4 i.e. shop closed (Details below) then it is mandatory to provide shop close end date. date string with layout DD/MM/YYYY e.g. 17/05/2017.
+shop_close_note | if reason_code is 4 i.e. shop closed (Details below) then it is mandatory to provide shop close note. max length 100 characters.
+
+### Reason Codes 
+
+Code  | Description
+------| -------------
+0 | Only for reject shipping case - reason required with max length 512 characters
+1 | Product(s) out of stock - list_prd required
+2 | Product variant unavailable
+3 |	Wrong price or weight
+4 | Shop closed - close_end and closed_note required
+7 |	Courier problem - reason required with max length 490 characters
+8 |	Buyer's request - reason required with max length 490 characters
+
+Staging Url: https://fs-staging.tokopedia.net
+Product Url: https://fs.tokopedia.net
 
 <aside class="success">
 Remember — this is authenticated request!
 </aside>
 
+
 ```shell
 curl -H "Authorization: Bearer LSPr7x7sRGaewzwZE6IcuA" \
-    http://fs-staging.tokopedia.net//v1/order/12345/fs/999999/nack -d\'{
-		"fs_id": 999999, 
-		"order_id": 12345, 
-		"reason": "not enough stock.", 
-		"update_time": "2017-01-01 18:00:10"
+    https://fs.tokopedia.net//v1/order/12345/fs/999999/nack -d'{
+		"reason_code": 1,
+		"reason": "out of stock" 
 }'
 ```
 
@@ -324,12 +389,11 @@ fs_id | fulfillment service id
 
 Parameter | Description
 --------- | -----------
-fs_id | fulfillment service id
-shop_id | shop id
-order_id | order id
-order_status | order status - either 400 for accepting complete order or 401 for accepting partial order.
-reason | reason associated with e.g. accepting partial order
-update_time | time of acceptance of order in `YYYY-MM-DD HH:mm:SS` fmt
+order_status | Order Status. Only valid values: 500 (confirm shipping)
+shipping_ref_num | AWB number if the status is to indicate that products have shipped
+
+Staging Url: https://fs-staging.tokopedia.net
+Product Url: https://fs.tokopedia.net
 
 <aside class="success">
 Remember — this is authenticated request!
@@ -337,14 +401,31 @@ Remember — this is authenticated request!
 
 ```shell
 curl -H "Authorization: Bearer LSPr7x7sRGaewzwZE6IcuA" \
-    http://fs-staging.tokopedia.net//v1/order/12345/fs/999999/status -d\'{
-		"fs_id": 999999, 
-		"order_id": 12345, 
-		"order_status": 500, 
-		"reason": "", 
-		"update_time": "2017-01-01 18:00:10"
+    https://fs.tokopedia.net//v1/order/12345/fs/999999/status -d\'{
+		"order_status": 500,
+		"shipping_ref_num": "BCD42324C",
 }'
 ```
+
+## Order Status Codes
+
+Code | Description
+-----| -----------
+400 | seller accepted the order            
+401 | seller accepted the order, partially           
+ 10 | seller rejected the order
+500 | seller confirm for shipment            
+
+## Order Reject Reason (possible reasons)
+
+S. No. | Description 
+-------|------------
+01 | Out of stock - Once selected, Seller need to update the selected item to not available.
+02 | Variant unavailable - Once selected, Seller can edit the Product Description or update the selected item to not available.
+03 | Wrong price or weight - Once selected, Seller can edit the Product Price and Weight, or update the selected item to not available.
+04 | Shop closed - Once selected, Seller can choose between Close Now or Managed Out Of Stock Product. If Close Now, Seller need to provide the From Date, Until Date, and Notes. Other, Seller need to update the selected item to not available.
+05 | Courier problem - Once selected, Seller need to provide some Notes.
+06 | Buyer request - Once selected, Seller need to provide some Notes. This option must be trigger by Buyer's Cancellation Request after Payment Verified.
 
 ## Notification Data Schema 
 
@@ -360,6 +441,7 @@ invoice_ref_num | string | invoice reference number
 products | []Product | products data, ref: product structure below
 customer | Customer | customer data, ref: customer structure below
 shop_id | int64 | shop id
+shop_name | string | shop name
 payment_id | int64 | payment id
 logistics | Logistics | logistics data, ref: logistics structure below
 amt | Amount | amount data, ref: amount structure below
@@ -370,44 +452,67 @@ custom_fields | map[string]string | a map of string to string for custom fields 
 
 ```json
 {
-		"fs_id": "",
-		"order_id": 12443547,
-		"invoice_ref_num": "INV/20161215/XVI/XII/12443550",
-		"products": [{
-			"id": 14265919,
-			"name": "Puding",
-			"quantity": 3,
-			"notes": "",
-			"price": 100
-		}],
-		"device_type": "",
-		"customer": {
-			"id": 5480358,
-			"name": "Emma Watson",
-			"phone": "081939164777"
-		},
-		"shop_id": 479094,
-		"payment_id": 10540008,
-		"recipient": {
-			"name": "Tifa",
-			"address": "Jl. R. A. ipocok Jaya, 42118, Banten",
-			"phone": "081294647164"
-		},
-		"logistics": {
-			"shipping_id": 1,
-			"shipping_agency": "JNE",
-			"service_type": "regular"
-		},
-		"amt": {
-			"ttl_product_price": 300,
-            "shipping_rate": 10,
-            "insurance_price": 0,
-            "ttl_amount": 310
+    "fs_id": 12002,
+    "order_id": 12463948,
+    "accept_partial": false,
+    "invoice_ref_num": "INV/20170505/XVII/V/12463898",
+    "products": [{
+        "id": 14286522,
+        "name": "Product A",
+        "quantity": 1,
+        "notes": "",
+        "weight": 0.01,
+        "total_weight": 0.01,
+        "price": 10000,
+        "total_price": 10000,
+        "currency": "Rp"
+    }],
+    "buyer": {
+        "id": 5484718,
+        "name": "Franky Buyer",
+        "phone": "08128533762",
+        "email": "franky.wibisono+buyer@tokopedia.com"
+    },
+    "recipient": {
+        "name": "Franky",
+        "address": {
+            "address_full": "Wisma 7 Tower 2 Lantai 6",
+            "district": "Palmerah",
+            "city": "Jakarta Barat",
+            "province": "DKI Jakarta",
+            "country": "Indonesia",
+            "postal_code": "11410"
         },
-        "order_status": 400,
-        "create_time": "2017-01-01 18:00:10",
-        "custom_fields": {
-		}
+        "phone": "08128533762"
+    },
+    "shop_id": 479569,
+    "shop_name": "Orami Official Store",
+    "payment_id": 11521618,
+    "logistics": {
+        "shipping_id": 1,
+        "shipping_agency": "JNE",
+        "service_type": "Reguler"
+    },
+    "amt": {
+        "ttl_product_price": 10000,
+        "shipping_cost": 9000,
+        "insurance_cost": 0,
+        "ttl_amount": 19000,
+        "voucher_amount": 0,
+        "toppoints_amount": 0
+    },
+    "dropshipper_info": {
+        "name": "",
+        "phone": ""
+    },
+    "voucher_info": {
+        "voucher_type": 0,
+        "voucher_code": ""
+    },
+    "device_type": "default_v3",
+    "order_status": 220,
+    "create_time": "2017-05-05 18:06:51",
+    "custom_fields": {}
 }
 
 ```
@@ -416,47 +521,26 @@ custom_fields | map[string]string | a map of string to string for custom fields 
 
 Field | Type | Description 
 ----- | ---- | -----------
-fs_id | int64 | fulfillment service id
-shop_id | int64 | shop id 
-order_id | int64 | order id
 products | []ProductFulfilled | this is only valid for ack. absent for cancellation, nack and status. 
-order_status | int | order status
-reason | string | reason 
-update_time | time.Time | time in format 'YYYY-MM-DD HH:mm:SS"
 
 ```json
 {
-	"fs_id": 99999,
-	"shop_id": 99999,
-	"order_id": 12443547,
     "products": [{
             "id": 14265919,
             "quantity_deliver": 3,
             "quantity_reject": 1
-	}],
-	"order_status": 410,
-	"reason": "",
-    "update_time": "2017-01-01 18:00:10"
+	}]
 }
 ```
 
 ### Order Nack  
 
-Field | Type | Description 
------ | ---- | -----------
-fs_id | int64 | fulfillment service id
-shop_id | int64 | shop id 
-order_id | int64 | order id
-reason | string | reason 
-update_time | time.Time | time in format 'YYYY-MM-DD HH:mm:SS"
-
 ```json
 {
-	"fs_id": 99999,
-	"shop_id": 99999,
-	"order_id": 12443547,
-	"reason": "no stock available",
-    "update_time": "2017-01-01 18:00:10"
+	"reason_code": 4, 
+	"reason": "shop is closed on the occasion of liburan",
+	"shop_close_end_date": "13/07/2017",
+	"shop_close_note": "Maf Pak, shop saya tutup untuk liburan"
 }
 ```
 
@@ -464,21 +548,11 @@ update_time | time.Time | time in format 'YYYY-MM-DD HH:mm:SS"
 
 Field | Type | Description 
 ----- | ---- | -----------
-fs_id | int64 | fulfillment service id
-shop_id | int64 | shop id 
-order_id | int64 | order id
-order_status | int | order status
-reason | string | reason 
-update_time | time.Time | time in format 'YYYY-MM-DD HH:mm:SS"
+shipping_ref_num | string | AWB number
 
 ```json
 {
-	"fs_id": 99999,
-	"shop_id": 99999,
-	"order_id": 12443547,
-	"order_status": 500,
-	"reason": "",
-    "update_time": "2017-01-01 18:00:10"
+	"shipping_ref_num": "BCD324243D",
 }
 ```
 
